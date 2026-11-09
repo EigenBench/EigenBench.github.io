@@ -166,13 +166,22 @@ export function ModelMatch() {
     const preview = pack.questions[answers.findIndex(answer => answer === null)] || pack.questions[0];
     return <section className="model-match-intro">
     <div><h1>Which model is most<br />aligned with your values?</h1><p>Choose between real model responses and discover your closest match.</p>
+      <img className="match-intro-choice-art" src="/assets/art/value-choice.webp" width="768" height="432" alt="A thoughtful person choosing between the Goodness and Taoism value symbols, with a question mark overhead." fetchPriority="high" />
       <div className="match-intro-meta"><span>10 scenarios</span><span>5 models</span><span>No signup</span></div>
       <div className="eigenbench-actions"><RunButton /></div>
       {completed > 0 && <p className="match-saved-note">{completed} of {pack.questions.length} answered. Your progress is saved in this tab.</p>}
-    </div><button className="match-home-preview" onClick={openPreview} aria-label={completed === pack.questions.length ? 'View your result' : completed ? 'Continue your quiz' : 'Open quiz'}>
+    </div><button className="match-home-preview" onClick={openPreview} aria-label={completed === pack.questions.length ? 'View your result' : completed ? 'Continue your quiz' : 'Start quiz'}>
       <span className="match-preview-caption"><strong>Choose the response that feels more like you.</strong></span>
-      <span className="match-preview-canvas" aria-hidden="true"><span className="match-preview-question">{preview.scenario.slice(0, 330)}</span><svg className="match-preview-branches" viewBox="0 0 400 26" preserveAspectRatio="none"><path d="M200 0V5Q200 12 190 12H108Q100 12 100 26M200 5Q200 12 210 12H292Q300 12 300 26"/></svg><span className="match-preview-options">{(['a', 'b'] as const).map(side => <span key={side}><b>Response {side.toUpperCase()}</b><span>{preview[side].response.slice(0, 180)}</span><i>Choose {side.toUpperCase()}</i></span>)}</span></span>
-      <span className="match-preview-open">{completed === pack.questions.length ? 'View your result' : completed ? 'Continue your quiz' : 'Open quiz'}</span>
+      <span className="match-preview-canvas" aria-hidden="true">
+        <span className="match-preview-question"><span className="match-preview-window"><span>Scenario</span><span className="match-preview-window-pixels"><i /><i /><i /></span></span><span className="match-preview-scenario-text"><span>{preview.scenario}</span></span></span>
+        <svg className="match-preview-branches" viewBox="0 0 400 48" preserveAspectRatio="none" shapeRendering="crispEdges">
+          <path className="match-preview-wire-bed" d="M200 0V20H100V48M200 20H300V48" />
+          <path className="match-preview-wire-a" d="M200 0V20H100V48" /><path className="match-preview-wire-b" d="M200 20H300V48" />
+          <rect className="match-preview-junction" x="195" y="15" width="10" height="10" /><rect className="match-preview-port-a" x="95" y="40" width="10" height="8" /><rect className="match-preview-port-b" x="295" y="40" width="10" height="8" />
+        </svg>
+        <span className="match-preview-options">{(['a', 'b'] as const).map(side => <span key={side} data-side={side}><span className="match-preview-response-heading"><b>{side.toUpperCase()}</b><span>Response {side.toUpperCase()}</span><svg viewBox="0 0 20 16" fill="currentColor"><path d="M0 4h4v8H0zm8-4h4v16H8zm8 4h4v8h-4z" /></svg></span><span className="match-preview-response-text"><span>{preview[side].response}</span></span><span className="match-preview-response-foot"><i /><i /><i /><i /><i /></span></span>)}</span>
+      </span>
+      <span className="match-preview-open">{completed === pack.questions.length ? 'View your result' : completed ? 'Continue your quiz' : 'Start quiz'}</span>
     </button>
   </section>; }
   if (screen === 'result') {

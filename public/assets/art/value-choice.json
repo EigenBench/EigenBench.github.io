@@ -1,0 +1,45 @@
+{
+  "provider": "OpenRouter",
+  "model": "openai/gpt-image-2",
+  "prompt": "Use case: illustration-story\nAsset type: compact homepage pixel-art illustration for EigenBench, a quiz that matches people to AI values.\nInput images: image 1 is the exact existing Goodness value logo reference: ochre vintage computer, sun pictogram on screen, small balance scales. Image 2 is the exact existing Taoism value logo reference: green round yin-yang ornament with bamboo and a terracotta bowl. Preserve the identities, silhouette, colors and screen symbols of those two references.\nPrimary request: one friendly, thoughtful human sitting on a small low stool in the center, looking undecided between those two value symbols, one on either side. One hand near their chin and the other open, shoulders slightly raised in a gentle questioning pose. A single clearly readable chunky pixel question mark floats above the human's head. Human is the central subject, with the Goodness computer and scales on the left and the Taoism yin-yang, bamboo and bowl on the right. The human wears muted terracotta and forest green casual clothes. Keep both reference emblems recognizable at small display size and subordinate to the central person. All three subjects sit in a single cohesive compact isometric vignette, not a sheet or three separate panels.\nStyle: finely crafted 16-bit pixel art matching the supplied value logos. Deliberate square pixel clusters, clean stair-step outlines, limited shading, muted ochre, sage and forest green, dusty terracotta, cream and charcoal. Crisp edges and no antialiasing. Welcoming, slightly playful, contemplative mood.\nComposition: landscape 3:2, centered, subjects fill 80 percent of canvas width, all objects fully visible, generous clear outer margins. No text except a single question mark. No additional screens, labels, cables, connecting plugs, frames, room or landscape. No gradients, glow, blur, vector look or photorealistic shading.\nBackdrop: perfectly uniform flat cream #F2EBDF, with no texture, ground shadow or gradient, intended for clean background removal. Preserve clear empty cream gaps between every detached object.",
+  "references": [
+    "public/assets/art/values/goodness.webp",
+    "public/assets/art/values/taoism_constitution.webp"
+  ],
+  "parameters": {
+    "aspect_ratio": "3:2",
+    "quality": "medium",
+    "n": 1,
+    "output_format": "png"
+  },
+  "created": 1794226984,
+  "usage": {
+    "prompt_tokens": 2475,
+    "completion_tokens": 1372,
+    "total_tokens": 3847,
+    "cost": 0.059679,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.059679,
+      "upstream_inference_prompt_cost": 0.018519,
+      "upstream_inference_completions_cost": 0.04116
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 1372
+    }
+  },
+  "elapsed_seconds": 30.9,
+  "processing": {
+    "background": "Cream color key removed for both themes",
+    "canvas": [
+      768,
+      432
+    ],
+    "format": "lossless WebP",
+    "bytes": 168524
+  }
+}
