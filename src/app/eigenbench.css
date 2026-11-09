@@ -546,3 +546,27 @@
  .match-response-scroll { max-height:260px; padding:13px 14px; }
  .match-response>h3 { min-height:44px; }
 }
+
+/* Small broken-pixel corner marks; the reading surface and silhouette stay soft. */
+:is(.match-home-preview,.match-preview-question,.match-preview-options>span,.match-question-pane .match-scenario,.match-question-pane .match-response,.match-bucket) { position:relative; }
+:is(.match-home-preview,.match-preview-question,.match-preview-options>span,.match-question-pane .match-scenario,.match-question-pane .match-response,.match-bucket)::after {
+ --corner-ink:color-mix(in srgb,var(--response-ink,var(--accent)) 72%,var(--bg-elevated));
+ --corner-glint:color-mix(in srgb,var(--response-ink,var(--accent)) 28%,var(--text));
+ content:''; position:absolute; inset:0; z-index:2; border-radius:inherit; pointer-events:none; opacity:.7;
+ background:
+  linear-gradient(var(--bg-elevated),var(--bg-elevated)) 13px 0/6px 1px no-repeat,
+  linear-gradient(var(--bg-elevated),var(--bg-elevated)) 0 13px/1px 6px no-repeat,
+  linear-gradient(var(--bg-elevated),var(--bg-elevated)) calc(100% - 13px) 100%/6px 1px no-repeat,
+  linear-gradient(var(--corner-ink),var(--corner-ink)) 4px 8px/3px 3px no-repeat,
+  linear-gradient(var(--corner-ink),var(--corner-ink)) 8px 4px/3px 3px no-repeat,
+  linear-gradient(var(--corner-glint),var(--corner-glint)) 4px 4px/2px 2px no-repeat,
+  linear-gradient(var(--corner-ink),var(--corner-ink)) calc(100% - 4px) 8px/3px 3px no-repeat,
+  linear-gradient(var(--corner-glint),var(--corner-glint)) calc(100% - 8px) 4px/2px 2px no-repeat,
+  linear-gradient(var(--corner-ink),var(--corner-ink)) 4px calc(100% - 8px)/3px 3px no-repeat,
+  linear-gradient(var(--corner-glint),var(--corner-glint)) 8px calc(100% - 4px)/2px 2px no-repeat,
+  linear-gradient(var(--corner-ink),var(--corner-ink)) calc(100% - 4px) calc(100% - 8px)/3px 3px no-repeat,
+  linear-gradient(var(--corner-ink),var(--corner-ink)) calc(100% - 8px) calc(100% - 4px)/3px 3px no-repeat;
+ transition:opacity 180ms ease;
+}
+.match-home-preview:hover::after,.match-question-pane .match-response[data-selected=true]::after { opacity:1; }
+@media(prefers-reduced-motion:reduce) { :is(.match-home-preview,.match-preview-question,.match-preview-options>span,.match-question-pane .match-scenario,.match-question-pane .match-response,.match-bucket)::after { transition:none; } }
