@@ -66,11 +66,12 @@ export function ModelMatch() {
   const [answers, setAnswers] = useState<(MatchPick | null)[]>([]);
   const [flips, setFlips] = useState<boolean[]>([]);
   const [index, setIndex] = useState(0);
-  const [screen, setScreen] = useState<'home' | 'quiz' | 'decider' | 'result'>('quiz');
+  const [screen, setScreen] = useState<'home' | 'quiz' | 'decider' | 'result'>('home');
   const [copied, setCopied] = useState(false);
   const [decisions, setDecisions] = useState<MatchDecision[]>([]);
   const [tiePick, setTiePick] = useState<'a' | 'b' | null>(null);
   const [showInfo, setShowInfo] = useState(false);
+  const [entering, setEntering] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menu = useRef<HTMLDivElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
@@ -96,7 +97,8 @@ export function ModelMatch() {
       } catch { /* The quiz works without browser storage. */ }
       setAnswers(picks); setFlips(order); setDecisions(savedDecisions); setPack(data);
       const next = picks.findIndex(pick => pick === null);
-      setIndex(next < 0 ? 0 : next); setScreen(new URLSearchParams(location.search).get('view') === 'home' ? 'home' : next < 0 ? resolveModelMatch(data, picks, savedDecisions).question ? 'decider' : 'result' : 'quiz');
+      if (new URLSearchParams(location.search).get('view') === 'quiz') setEntering(true);
+      setIndex(next < 0 ? 0 : next); setScreen(new URLSearchParams(location.search).get('view') !== 'quiz' ? 'home' : next < 0 ? resolveModelMatch(data, picks, savedDecisions).question ? 'decider' : 'result' : 'quiz');
     }).catch(e => { if (e.name !== 'AbortError') setError(true); });
     return () => controller.abort();
   }, [attempt]);
@@ -126,11 +128,17 @@ export function ModelMatch() {
   };
   const resume = () => {
     if (!pack) return;
-    history.replaceState(history.state, '', '/');
+    setEntering(true);
+    history.replaceState(history.state, '', '/?view=quiz');
     const next = answers.findIndex(answer => answer === null);
     setIndex(next < 0 ? 0 : next); setScreen(next < 0 ? resolveModelMatch(pack, answers, decisions).question ? 'decider' : 'result' : 'quiz');
     focusNext.current = true;
   };
+  useEffect(() => {
+    if (!entering) return;
+    const timer = window.setTimeout(() => setEntering(false), 650);
+    return () => window.clearTimeout(timer);
+  }, [entering]);
   const move = (next: number) => { focusNext.current = true; setIndex(next); };
   const choose = (pick: MatchPick) => {
     if (screen === 'decider') { if (pick !== 'skip') setTiePick(pick); return; }
@@ -141,12 +149,12 @@ export function ModelMatch() {
   const finish = () => { setMenuOpen(false); if (!pack) return; focusNext.current = true; setTiePick(null); setScreen(resolveModelMatch(pack, answers, decisions).question ? 'decider' : 'result'); };
   const restart = () => {
     if (!pack) return;
-    setMenuOpen(false); history.replaceState(history.state, '', '/');
+    setMenuOpen(false); setEntering(true); history.replaceState(history.state, '', '/?view=quiz');
     setDecisions([]); setTiePick(null); setAnswers(pack.questions.map(() => null)); setFlips(pack.questions.map(() => Math.random() < .5)); setCopied(false); setIndex(0); focusNext.current = true; setScreen('quiz');
   };
   const completed = answers.filter(Boolean).length;
 
-  if (!pack) return <section className="match-loading"><h1>Which model thinks most like you?</h1><RunButton />{error ? <p role="alert">Couldn’t load the saved responses. <button onClick={() => setAttempt(n => n + 1)}>Try again</button></p> : <p role="status">Opening your first scenario…</p>}</section>;
+  if (!pack) return <section className="match-loading"><h1>Which model thinks most like you?</h1><RunButton />{error ? <p role="alert">Couldn’t load the saved responses. <button onClick={() => setAttempt(n => n + 1)}>Try again</button></p> : <p role="status">Loading your saved progress…</p>}</section>;
   if (screen === 'home') return <section className="model-match-intro">
     <div><h1>Which model thinks<br />most like you?</h1><p>Choose between real model responses and discover your closest match.</p>
       <div className="match-intro-meta"><span>10 scenarios</span><span>5 models</span><span>No signup</span></div>
@@ -179,18 +187,19 @@ export function ModelMatch() {
     setScreen(resolveModelMatch(pack, answers, next).question ? 'decider' : 'result');
   };
   const sides: ('a' | 'b')[] = flips[pack.questions.indexOf(question)] ? ['b', 'a'] : ['a', 'b'];
-  return <section className="model-match-quiz" data-started={completed > 0 && !showInfo} aria-label="Model match quiz">
+  return <section className="model-match-quiz" data-entering={entering} data-started={completed > 0 && !showInfo} aria-label="Model match quiz">
     <div className="match-workspace-title"><h1>Which model thinks most like you?</h1><div className="match-workspace-actions"><div className="match-quiz-menu" ref={menu}><button ref={menuButton} className="match-menu-trigger" aria-label="Quiz menu" aria-expanded={menuOpen} aria-controls="quiz-actions" onClick={() => setMenuOpen(!menuOpen)}><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" fill="currentColor"><circle cx="4" cy="9" r="1.5"/><circle cx="9" cy="9" r="1.5"/><circle cx="14" cy="9" r="1.5"/></svg></button>{menuOpen && <div className="match-menu-panel" id="quiz-actions" role="group" aria-label="Quiz actions"><button onClick={closeQuiz}>Close quiz<span>Keep your progress</span></button><button onClick={restart}>Restart quiz<span>Start from the first scenario</span></button><button onClick={finish}>End quiz<span>See your result so far</span></button><a href="/?view=home">Back to home</a></div>}</div><button onClick={() => setShowInfo(!showInfo)} aria-expanded={showInfo}>{showInfo ? 'Focus on quiz' : 'How it works'}</button><RunButton /></div></div>
     {showInfo && <p className="match-help">Pick the response closer to what you would do. Each model appears four times across ten saved scenarios. Names appear after you choose; “Neither / unsure” doesn’t affect the ranking. Your progress stays in this browser tab.</p>}
     <div className="match-workspace" data-revealed={answers.some(answer => answer === 'a' || answer === 'b')}>
     <div className="match-question-pane">
     <div className="match-progress-heading"><span>{deciding ? 'Final deciding choice' : `Scenario ${index + 1} of ${pack.questions.length}`}</span><span>{deciding ? 'Your top models have equal scores' : 'Choose what feels like you'}</span></div>
     <progress value={deciding ? pack.questions.length : index + 1} max={pack.questions.length} aria-label="Quiz progress" />
-    <h2 className="match-scenario-heading sr-only" ref={heading} tabIndex={-1}>Scenario {index + 1}: what would you do?</h2><p className="match-scenario">{question.scenario}</p>
-    <div className="match-response-grid" key={question.id}>{sides.map((side, i) => <article className="match-response" data-selected={selected === side} key={side}>
+    <h2 className="match-scenario-heading sr-only" ref={heading} tabIndex={-1}>Scenario {index + 1}: what would you do?</h2><p className="match-scenario"><span className="match-scenario-copy">{question.scenario}</span></p>
+    <div className="match-response-grid" key={question.id} data-choice={selected === 'skip' ? 'skip' : selected ? selected === sides[0] ? 'a' : 'b' : ''}>
+      <svg className="match-choice-branches" viewBox="0 0 1000 32" preserveAspectRatio="none" aria-hidden="true"><path className="match-branch-left" d="M500 0V5Q500 15 484 15H266Q250 15 250 32"/><path className="match-branch-right" d="M500 0V5Q500 15 516 15H734Q750 15 750 32"/></svg>{sides.map((side, i) => <article className="match-response" data-selected={selected === side} key={side}>
       <h3><span>{i === 0 ? 'A' : 'B'}</span>{selected ? <><ModelLogo name={question[side].model} size={18} />{question[side].model}</> : `Response ${i === 0 ? 'A' : 'B'}`}</h3>
       <div className="match-response-scroll" tabIndex={0} role="region" aria-label={`Response ${i === 0 ? 'A' : 'B'} full text`}><ResponseText text={question[side].response} /></div>
-      <button className="match-pick" aria-pressed={selected === side} onClick={() => choose(side)}>{selected === side ? 'Selected' : `I’m closer to ${i === 0 ? 'A' : 'B'}`}</button>
+      <button className="match-pick" aria-pressed={selected === side} onClick={() => choose(side)}><span className="match-pick-indicator" aria-hidden="true">{selected === side ? '✓' : i === 0 ? 'A' : 'B'}</span><span>{selected === side ? 'Selected' : `Choose ${i === 0 ? 'A' : 'B'}`}</span></button>
     </article>)}</div>
     <div className="match-quiz-bottom">{deciding ? <button className="match-skip" onClick={() => { move(0); setScreen('quiz'); }}>Review my choices</button> : <button className="match-skip" aria-pressed={selected === 'skip'} onClick={() => choose('skip')}>Neither / unsure</button>}<div><button disabled={!deciding && index === 0} onClick={() => { if (deciding) { move(pack.questions.length - 1); setScreen('quiz'); } else move(index - 1); }}>Back</button><button className="eigenbench-primary" disabled={!selected} onClick={advance}>{deciding || index === pack.questions.length - 1 ? 'See my match' : 'Next scenario'}</button></div></div>
     </div>

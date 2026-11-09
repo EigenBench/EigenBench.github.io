@@ -2536,3 +2536,6 @@ code {
 .coverage-table-wrap { overflow-x: auto; }
 .coverage-reason { white-space: pre-wrap; overflow-wrap: anywhere; min-width: 15rem; max-width: 32rem; }
 .coverage-scenario { white-space: pre-wrap; min-width: 15rem; max-width: 32rem; }
+
+/* Keep accessible labels hidden independently of generated utility styles. */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }

@@ -2,8 +2,8 @@
 
 The public platform at https://eigenbench.github.io/.
 
-- `/`: the saved-response model-match quiz, with live rankings.
-- `/?view=home`: home screen; resume or restart the quiz.
+- `/` (also `/?view=home`): the default home screen; start or resume the quiz.
+- `/?view=quiz`: the saved-response model-match quiz, with live rankings.
 - `/evaluate/`: configure and run an evaluation, including login and run history.
 - `/run/` and `/transcript/`: inspect evaluation results and transcripts.
 
