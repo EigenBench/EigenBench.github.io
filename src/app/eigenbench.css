@@ -570,3 +570,34 @@
 }
 .match-home-preview:hover::after,.match-question-pane .match-response[data-selected=true]::after { opacity:1; }
 @media(prefers-reduced-motion:reduce) { :is(.match-home-preview,.match-preview-question,.match-preview-options>span,.match-question-pane .match-scenario,.match-question-pane .match-response,.match-bucket)::after { transition:none; } }
+
+/* Corner fragments drift outward in small pixel steps, then quietly reform. */
+@keyframes match-corner-fragments {
+  0%,12%,100% {
+    opacity:.72;
+    background-position:13px 0,0 13px,calc(100% - 13px) 100%,4px 8px,8px 4px,4px 4px,calc(100% - 4px) 8px,calc(100% - 8px) 4px,4px calc(100% - 8px),8px calc(100% - 4px),calc(100% - 4px) calc(100% - 8px),calc(100% - 8px) calc(100% - 4px);
+  }
+  62% {
+    opacity:.5;
+    background-position:13px 0,0 13px,calc(100% - 13px) 100%,-3px 0,0 -3px,-4px -4px,calc(100% + 3px) 0,100% -3px,-3px 100%,0 calc(100% + 3px),calc(100% + 3px) 100%,100% calc(100% + 3px);
+  }
+  74% {
+    opacity:0;
+    background-position:13px 0,0 13px,calc(100% - 13px) 100%,-6px -3px,-3px -6px,-7px -7px,calc(100% + 6px) -3px,calc(100% + 3px) -6px,-6px calc(100% + 3px),-3px calc(100% + 6px),calc(100% + 6px) calc(100% + 3px),calc(100% + 3px) calc(100% + 6px);
+  }
+  75%,82% {
+    opacity:0;
+    background-position:13px 0,0 13px,calc(100% - 13px) 100%,4px 8px,8px 4px,4px 4px,calc(100% - 4px) 8px,calc(100% - 8px) 4px,4px calc(100% - 8px),8px calc(100% - 4px),calc(100% - 4px) calc(100% - 8px),calc(100% - 8px) calc(100% - 4px);
+  }
+}
+@media(prefers-reduced-motion:no-preference) {
+  :is(.match-home-preview,.match-preview-question,.match-preview-options>span,.match-question-pane .match-scenario,.match-question-pane .match-response,.match-bucket)::after {
+    animation:match-corner-fragments 4.2s steps(5,end) infinite;
+    animation-delay:-1.1s;
+    transition:none;
+  }
+  .match-preview-question::after,.match-question-pane .match-scenario::after { animation-delay:-2.7s; }
+  .match-preview-options>span:nth-child(2)::after,.match-question-pane .match-response[data-side=b]::after { animation-delay:-3.4s; }
+  .match-bucket::after { animation-duration:4.8s; animation-delay:-2s; }
+  .match-bucket:nth-child(2)::after { animation-delay:-4s; }
+}
