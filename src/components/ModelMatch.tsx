@@ -166,7 +166,7 @@ export function ModelMatch() {
     const preview = pack.questions[answers.findIndex(answer => answer === null)] || pack.questions[0];
     return <section className="model-match-intro">
     <div><h1>Which model is most<br />aligned with your values?</h1><p>Choose between real model responses and discover your closest match.</p>
-      <img className="match-intro-choice-art" src="/assets/art/value-choice.webp?v=4" width="768" height="432" alt="A thoughtful person choosing between the Goodness and Misalignment value symbols, with a question mark overhead." fetchPriority="high" />
+      <img className="match-intro-choice-art" src="/assets/art/value-choice-girl.webp" width="768" height="432" alt="A thoughtful young woman choosing between the Goodness and Misalignment value symbols, with a question mark overhead." fetchPriority="high" />
       <div className="match-intro-meta"><span>10 scenarios</span><span>5 models</span><span>No signup</span></div>
       <div className="eigenbench-actions"><RunButton /></div>
       {completed > 0 && <p className="match-saved-note">{completed} of {pack.questions.length} answered. Your progress is saved in this tab.</p>}
