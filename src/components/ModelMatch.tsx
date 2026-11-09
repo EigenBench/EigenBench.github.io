@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ModelLogo } from './ModelLogo';
+import { flushSync } from 'react-dom';
 import { resolveModelMatch, matchScores, type MatchDecision, type MatchPack, type MatchPick } from '@/lib/model-match';
 import { renderMarkdownSanitized } from '@/lib/chat-render';
 
@@ -134,6 +135,12 @@ export function ModelMatch() {
     setIndex(next < 0 ? 0 : next); setScreen(next < 0 ? resolveModelMatch(pack, answers, decisions).question ? 'decider' : 'result' : 'quiz');
     focusNext.current = true;
   };
+  const openPreview = () => {
+    const transitionDocument = document as Document & { startViewTransition?: (update: () => void) => unknown };
+    if (transitionDocument.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      transitionDocument.startViewTransition(() => flushSync(() => { resume(); setEntering(false); }));
+    } else resume();
+  };
   useEffect(() => {
     if (!entering) return;
     const timer = window.setTimeout(() => setEntering(false), 650);
@@ -154,14 +161,20 @@ export function ModelMatch() {
   };
   const completed = answers.filter(Boolean).length;
 
-  if (!pack) return <section className="match-loading"><h1>Which model thinks most like you?</h1><RunButton />{error ? <p role="alert">Couldn’t load the saved responses. <button onClick={() => setAttempt(n => n + 1)}>Try again</button></p> : <p role="status">Loading your saved progress…</p>}</section>;
-  if (screen === 'home') return <section className="model-match-intro">
-    <div><h1>Which model thinks<br />most like you?</h1><p>Choose between real model responses and discover your closest match.</p>
+  if (!pack) return <section className="match-loading"><h1>Which model is most aligned with your values?</h1><RunButton />{error ? <p role="alert">Couldn’t load the saved responses. <button onClick={() => setAttempt(n => n + 1)}>Try again</button></p> : <p role="status">Loading your saved progress…</p>}</section>;
+  if (screen === 'home') {
+    const preview = pack.questions[answers.findIndex(answer => answer === null)] || pack.questions[0];
+    return <section className="model-match-intro">
+    <div><h1>Which model is most<br />aligned with your values?</h1><p>Choose between real model responses and discover your closest match.</p>
       <div className="match-intro-meta"><span>10 scenarios</span><span>5 models</span><span>No signup</span></div>
       <div className="eigenbench-actions"><button className="eigenbench-primary" onClick={resume}>{completed === pack.questions.length ? 'View my result' : completed ? 'Resume quiz' : 'Start quiz'}</button>{completed > 0 && <button onClick={restart}>Restart quiz</button>}<RunButton /></div>
       {completed > 0 && <p className="match-saved-note">{completed} of {pack.questions.length} answered. Your progress is saved in this tab.</p>}
-    </div><img className="match-intro-art" src="/assets/art/model-conversation-values.webp" width="320" height="240" alt="Three pixel computers around a table" />
-  </section>;
+    </div><button className="match-home-preview" onClick={openPreview} aria-label={completed === pack.questions.length ? 'Preview and view my result' : 'Preview and start quiz'}>
+      <span className="match-preview-caption"><strong>A glimpse of the quiz</strong><span>Choose the response that feels more like you.</span></span>
+      <span className="match-preview-canvas" aria-hidden="true"><span className="match-preview-question">{preview.scenario.slice(0, 330)}</span><svg className="match-preview-branches" viewBox="0 0 400 26" preserveAspectRatio="none"><path d="M200 0V5Q200 12 190 12H108Q100 12 100 26M200 5Q200 12 210 12H292Q300 12 300 26"/></svg><span className="match-preview-options">{(['a', 'b'] as const).map(side => <span key={side}><b>Response {side.toUpperCase()}</b><span>{preview[side].response.slice(0, 180)}</span><i>Choose {side.toUpperCase()}</i></span>)}</span></span>
+      <span className="match-preview-open">{completed === pack.questions.length ? 'View your result' : completed ? 'Continue your quiz' : 'Open quiz'}</span>
+    </button>
+  </section>; }
   if (screen === 'result') {
     const scores = matchScores(pack, answers), outcome = resolveModelMatch(pack, answers, decisions), winners = outcome.winner ? [outcome.winner] : [];
     const decisive = answers.filter(answer => answer && answer !== 'skip').length;
@@ -188,7 +201,7 @@ export function ModelMatch() {
   };
   const sides: ('a' | 'b')[] = flips[pack.questions.indexOf(question)] ? ['b', 'a'] : ['a', 'b'];
   return <section className="model-match-quiz" data-entering={entering} data-started={completed > 0 && !showInfo} aria-label="Model match quiz">
-    <div className="match-workspace-title"><h1>Which model thinks most like you?</h1><div className="match-workspace-actions"><div className="match-quiz-menu" ref={menu}><button ref={menuButton} className="match-menu-trigger" aria-label="Quiz menu" aria-expanded={menuOpen} aria-controls="quiz-actions" onClick={() => setMenuOpen(!menuOpen)}><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" fill="currentColor"><circle cx="4" cy="9" r="1.5"/><circle cx="9" cy="9" r="1.5"/><circle cx="14" cy="9" r="1.5"/></svg></button>{menuOpen && <div className="match-menu-panel" id="quiz-actions" role="group" aria-label="Quiz actions"><button onClick={closeQuiz}>Close quiz<span>Keep your progress</span></button><button onClick={restart}>Restart quiz<span>Start from the first scenario</span></button><button onClick={finish}>End quiz<span>See your result so far</span></button><a href="/?view=home">Back to home</a></div>}</div><button onClick={() => setShowInfo(!showInfo)} aria-expanded={showInfo}>{showInfo ? 'Focus on quiz' : 'How it works'}</button><RunButton /></div></div>
+    <div className="match-workspace-title"><h1>Which model is most aligned with your values?</h1><div className="match-workspace-actions"><div className="match-quiz-menu" ref={menu}><button ref={menuButton} className="match-menu-trigger" aria-label="Quiz menu" aria-expanded={menuOpen} aria-controls="quiz-actions" onClick={() => setMenuOpen(!menuOpen)}><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" fill="currentColor"><circle cx="4" cy="9" r="1.5"/><circle cx="9" cy="9" r="1.5"/><circle cx="14" cy="9" r="1.5"/></svg></button>{menuOpen && <div className="match-menu-panel" id="quiz-actions" role="group" aria-label="Quiz actions"><button onClick={closeQuiz}>Close quiz<span>Keep your progress</span></button><button onClick={restart}>Restart quiz<span>Start from the first scenario</span></button><button onClick={finish}>End quiz<span>See your result so far</span></button><a href="/?view=home">Back to home</a></div>}</div><button onClick={() => setShowInfo(!showInfo)} aria-expanded={showInfo}>{showInfo ? 'Focus on quiz' : 'How it works'}</button><RunButton /></div></div>
     {showInfo && <p className="match-help">Pick the response closer to what you would do. Each model appears four times across ten saved scenarios. Names appear after you choose; “Neither / unsure” doesn’t affect the ranking. Your progress stays in this browser tab.</p>}
     <div className="match-workspace" data-revealed={answers.some(answer => answer === 'a' || answer === 'b')}>
     <div className="match-question-pane">
