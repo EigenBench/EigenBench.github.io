@@ -167,10 +167,10 @@ export function ModelMatch() {
     return <section className="model-match-intro">
     <div><h1>Which model is most<br />aligned with your values?</h1><p>Choose between real model responses and discover your closest match.</p>
       <div className="match-intro-meta"><span>10 scenarios</span><span>5 models</span><span>No signup</span></div>
-      <div className="eigenbench-actions"><button className="eigenbench-primary" onClick={resume}>{completed === pack.questions.length ? 'View my result' : completed ? 'Resume quiz' : 'Start quiz'}</button>{completed > 0 && <button onClick={restart}>Restart quiz</button>}<RunButton /></div>
+      <div className="eigenbench-actions"><RunButton /></div>
       {completed > 0 && <p className="match-saved-note">{completed} of {pack.questions.length} answered. Your progress is saved in this tab.</p>}
-    </div><button className="match-home-preview" onClick={openPreview} aria-label={completed === pack.questions.length ? 'Preview and view my result' : 'Preview and start quiz'}>
-      <span className="match-preview-caption"><strong>A glimpse of the quiz</strong><span>Choose the response that feels more like you.</span></span>
+    </div><button className="match-home-preview" onClick={openPreview} aria-label={completed === pack.questions.length ? 'View your result' : completed ? 'Continue your quiz' : 'Open quiz'}>
+      <span className="match-preview-caption"><strong>Choose the response that feels more like you.</strong></span>
       <span className="match-preview-canvas" aria-hidden="true"><span className="match-preview-question">{preview.scenario.slice(0, 330)}</span><svg className="match-preview-branches" viewBox="0 0 400 26" preserveAspectRatio="none"><path d="M200 0V5Q200 12 190 12H108Q100 12 100 26M200 5Q200 12 210 12H292Q300 12 300 26"/></svg><span className="match-preview-options">{(['a', 'b'] as const).map(side => <span key={side}><b>Response {side.toUpperCase()}</b><span>{preview[side].response.slice(0, 180)}</span><i>Choose {side.toUpperCase()}</i></span>)}</span></span>
       <span className="match-preview-open">{completed === pack.questions.length ? 'View your result' : completed ? 'Continue your quiz' : 'Open quiz'}</span>
     </button>

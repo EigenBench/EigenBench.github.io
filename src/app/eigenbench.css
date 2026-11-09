@@ -433,15 +433,13 @@
 
 @media(min-width:901px) and (max-width:1100px) { .match-workspace { grid-template-columns:minmax(0,1fr) 280px; gap:18px; } }
 
-/* A real, blurred glimpse of the quiz that opens into the reading desk. */
+/* A compact scenario card that opens into the reading desk. */
 .model-match-intro { grid-template-columns:minmax(0,1fr) minmax(0,.9fr); gap:56px; }
 .match-home-preview { position:relative; display:block; min-width:0; width:100%; padding:0; overflow:hidden; border:1px solid color-mix(in srgb,var(--accent) 25%,var(--border)); border-radius:20px; background:linear-gradient(145deg,color-mix(in srgb,var(--band-mint) 40%,var(--bg-elevated)),var(--bg-elevated)); color:var(--text); text-align:left; cursor:pointer; box-shadow:0 8px 30px #0000000b; view-transition-name:match-surface; transition:border-color 200ms ease,box-shadow 200ms ease; }
 .match-home-preview:hover { border-color:color-mix(in srgb,var(--accent) 65%,var(--border)); box-shadow:0 12px 36px #00000016; }
 .match-preview-caption { display:block; padding:22px 24px 18px; }
 .match-preview-caption>strong { display:block; font:500 19px/27px var(--font-body); letter-spacing:-.3px; }
-.match-preview-caption>span { display:block; margin-top:6px; color:var(--text-secondary); font:13px/21px var(--font-body); }
-.match-preview-canvas { display:block; height:240px; padding:0 22px; overflow:hidden; filter:blur(2.6px); opacity:.7; mask-image:linear-gradient(#000 40%,transparent 100%); transition:filter 220ms ease,opacity 220ms ease; }
-.match-home-preview:hover .match-preview-canvas { filter:blur(1.8px); opacity:.8; }
+.match-preview-canvas { display:block; padding:0 22px; overflow:hidden; }
 .match-preview-question { display:block; height:92px; overflow:hidden; border:1px solid var(--border); border-radius:10px; padding:12px 14px; font:12px/20px var(--font-body); color:var(--text-secondary); background:var(--bg-elevated); }
 .match-preview-branches { display:block; width:100%; height:26px; overflow:visible; }
 .match-preview-branches path { fill:none; stroke:var(--accent); stroke-width:1; }
@@ -450,7 +448,7 @@
 .match-preview-options b { display:block; font:500 11px/18px var(--font-body); margin-bottom:8px; }
 .match-preview-options span>span { display:block; font:11px/18px var(--font-body); color:var(--text-secondary); }
 .match-preview-options i { display:block; margin-top:12px; text-align:center; border:1px solid var(--border); border-radius:5px; font:500 11px/24px var(--font-body); font-style:normal; }
-.match-preview-open { position:relative; display:table; padding:10px 24px; margin:-38px auto 24px; border-radius:999px; background:var(--accent); color:var(--bg); font:500 13px/20px var(--font-body); box-shadow:0 3px 10px #00000012; }
+.match-preview-open { position:relative; display:table; padding:10px 24px; margin:18px auto 24px; border-radius:999px; background:var(--accent); color:var(--bg); font:500 13px/20px var(--font-body); box-shadow:0 3px 10px #00000012; }
 .model-match-quiz,.model-match-results { view-transition-name:match-surface; }
 ::view-transition-group(match-surface) { animation-duration:460ms; animation-timing-function:cubic-bezier(.2,.8,.2,1); }
 ::view-transition-image-pair(match-surface) { isolation:isolate; border-radius:18px; overflow:clip; }
@@ -459,6 +457,6 @@
 @keyframes match-preview-fade-out { to { opacity:0; } }
 @keyframes match-preview-fade-in { from { opacity:0; } to { opacity:1; } }
 @media(max-width:900px) { .model-match-intro { gap:32px; } .match-preview-caption { padding:20px 18px 16px; } .match-preview-canvas { padding-inline:14px; } }
-@media(max-width:640px) { .model-match-intro { flex-direction:column; gap:28px; } .match-home-preview { max-width:480px; align-self:center; } .match-preview-canvas { height:220px; } }
+@media(max-width:640px) { .model-match-intro { flex-direction:column; gap:28px; } .match-home-preview { max-width:480px; align-self:center; } }
 @media(prefers-reduced-motion:reduce) { .match-home-preview,.match-preview-canvas { transition:none; } }
 .model-match-quiz .match-workspace-title h1 { font-size:clamp(22px,2vw,28px); }
