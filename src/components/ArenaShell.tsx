@@ -37,7 +37,7 @@ export function ArenaShell({ children }: { children: React.ReactNode }) {
     {pathname === '/' && <footer className="home-footer"><div className="home-footer-inner">
       <a className="home-footer-brand" href="/?view=home">EigenBench</a>
       <nav aria-label="Footer"><a href="/?view=quiz">Model match</a><a href="/experiments/">Saved runs</a><a href="/evaluate/">Run EigenBench</a><a href="https://valuearena.github.io/" target="_blank" rel="noopener noreferrer">ValueArena</a></nav>
-      <nav className="home-footer-resources" aria-label="Lab and open source"><a href="https://valuearena.github.io/lab/">LAISR Lab</a><a href="https://huggingface.co/datasets/invi-bhagyesh/ValueArena">Hugging Face</a><a href="https://github.com/EigenBench/EigenBench.github.io">GitHub</a></nav>
+      <nav className="home-footer-resources" aria-label="Lab and open source"><a href="https://valuearena.github.io/lab/">LAISR Lab</a><a href="https://huggingface.co/LAISR">Hugging Face</a><a href="https://github.com/EigenBench/EigenBench.github.io">GitHub</a></nav>
       <a className="home-footer-art-link" href="https://valuearena.github.io/lab/" aria-label="LAISR Lab"><img className="home-footer-art" src="/assets/art/laisr-pixel-mark.webp" width="72" height="72" alt="" loading="lazy" /></a>
     </div></footer>}
     {/^\/lab\/?$/.test(pathname) && <SiteFooter evaluationURL={eigenBenchURL} />}
