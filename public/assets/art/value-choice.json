@@ -41,6 +41,13 @@
     ],
     "format": "lossless WebP",
     "palette_colors": 256,
-    "bytes": 43860
+    "bytes": 41942,
+    "edge_cleanup": {
+      "filter": "scripts/clean-artwork-fringe.py",
+      "source": "output/imagegen/value-choice/value-choice-v3-before-fringe.webp",
+      "passes": 2,
+      "removed_pixels": 1611,
+      "preserved": "All retained RGBA pixels unchanged; removes only pale low-saturation fragments adjacent to transparency."
+    }
   }
 }
