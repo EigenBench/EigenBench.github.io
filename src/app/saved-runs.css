@@ -1,0 +1,33 @@
+/* The saved archive uses the same soft pixel windows as the quiz. */
+.saved-runs-page { max-width:1240px; margin-inline:auto; }
+.saved-runs-heading { display:flex; align-items:center; justify-content:space-between; gap:32px; margin-bottom:28px; }
+.saved-runs-heading h1 { font:500 clamp(30px,3.5vw,44px)/1.12 var(--font-body); letter-spacing:-1px; }
+.saved-runs-heading p { max-width:54ch; color:var(--text-secondary); font:15px/25px var(--font-body); }
+.saved-runs-heading>img { width:100px; height:auto; image-rendering:pixelated; }
+.saved-runs-page .filter-bar { gap:10px; margin-bottom:20px; padding:14px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); }
+.saved-runs-page .filter-search { border-radius:6px; }
+.saved-runs-page .filter-custom-select { border-radius:6px; }
+.saved-runs-page .table-wrap { max-width:100%; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); box-shadow:inset 0 3px 0 color-mix(in srgb,var(--accent) 25%,var(--bg-elevated)); }
+.saved-runs-page .runs-table { margin:0; font:12px/20px var(--font-body); }
+.saved-runs-page .runs-table thead th { background:radial-gradient(color-mix(in srgb,var(--accent) 18%,transparent) .65px,transparent .85px) 0 0/6px 6px,var(--bg-elevated); font:500 11px/20px var(--font-body); }
+.saved-runs-page .runs-table :is(td,th) { padding-block:14px; }
+.saved-runs-page .runs-table .group-header { background:color-mix(in srgb,var(--accent) 6%,var(--bg-elevated)); }
+.saved-runs-page .runs-table .group-header:hover { background:color-mix(in srgb,var(--accent) 12%,var(--bg-elevated)); }
+.saved-runs-page .run-name { font-weight:500; }
+.saved-runs-page .models-badge,.saved-runs-page .protocol-badge { border-radius:4px; }
+.saved-run-group-toggle { display:flex; align-items:center; gap:8px; width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; }
+.saved-run-group-toggle .group-count { margin-left:4px; white-space:nowrap; }
+@media(max-width:640px) { .saved-runs-heading { gap:16px; } .saved-runs-heading>img { width:68px; } .saved-runs-heading p { font-size:14px; line-height:23px; } .saved-runs-page .filter-bar { padding:12px; } }
+
+.saved-run-filter-toggle { display:none; }
+.saved-runs-page .runs-table td { white-space:normal; }
+.saved-runs-page .runs-table .date-cell { white-space:nowrap; }
+@media(max-width:640px) {
+ .saved-runs-page .filter-bar { flex-wrap:wrap; }
+ .saved-runs-page .filter-search-wrap { flex:1; min-width:0; }
+ .saved-runs-page .filter-search,.saved-runs-page .filter-search:focus { width:100%; min-width:0; }
+ .saved-run-filter-toggle { display:grid; place-items:center; flex:none; width:38px; height:38px; border:1px solid var(--border); border-radius:6px; background:var(--bg-elevated); color:var(--text); cursor:pointer; }
+ .saved-run-filter-toggle[aria-expanded=true] { border-color:var(--accent); color:var(--accent); }
+ .saved-runs-page .filter-bar[data-filters-open=false] :is(.filter-custom-select,.filter-range) { display:none; }
+ .saved-runs-page .filter-count { width:100%; margin:0; }
+}

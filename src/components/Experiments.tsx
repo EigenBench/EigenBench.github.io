@@ -53,10 +53,20 @@ type Filters = {
   modelsMax?: string;
 };
 
-export function Experiments() {
-  const [runs, setRuns] = useState<RunRow[] | null>(null);
+function normalizeRuns(runs: IndexRun[]): RunRow[] {
+  return runs.map(r => ({
+    ...r,
+    constitution: (r.constitution || '').replace(/^oct_/, ''),
+    scenario: String(r.scenario || '').replace(/^oct_/, ''),
+    evaluation_mode: normalizeEvaluationMode(r.evaluation_mode),
+  }));
+}
+
+export function Experiments({ initialRuns, compact = false }: { initialRuns?: IndexRun[]; compact?: boolean } = {}) {
+  const [runs, setRuns] = useState<RunRow[] | null>(() => initialRuns ? normalizeRuns(initialRuns) : null);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>({});
   const [sortCol, setSortCol] = useState<SortCol>('timestamp');
   const [sortAsc, setSortAsc] = useState(false);
@@ -71,25 +81,21 @@ export function Experiments() {
         const hostedRequest = evaluationAPI ? fetch(evaluationAPI + '/experiments', { cache: 'no-store', signal: AbortSignal.timeout(15000) }).then(r => r.ok ? r.json() as Promise<EvaluationJob[]> : []).catch(() => []) : Promise.resolve([]);
         const index = await fetchIndex();
         if (cancelled) return;
-        const normalized: RunRow[] = (index.runs || []).map((r) => ({
-          ...r,
-          constitution: (r.constitution || '').replace(/^oct_/, ''),
-          scenario: (((r as RunRow).scenario as string | undefined) || '').replace(/^oct_/, ''),
-          evaluation_mode: normalizeEvaluationMode(r.evaluation_mode),
-        }));
+        const normalized = normalizeRuns(index.runs || []);
+        if (!normalized.length && initialRuns?.length) return;
         setRuns(normalized);
         const hosted = await hostedRequest;
         if (cancelled) return;
         const hostedRuns: RunRow[] = hosted.filter((r: EvaluationJob) => !normalized.some(existing => existing.slug === 'community/' + r.id)).map((r: EvaluationJob) => ({ slug: 'hosted/' + r.id, hosted_id: r.id, name: r.name, group: 'Community evaluations', constitution: r.constitution, scenario: `${r.scenario_count} scenarios`, models_count: r.models_count, timestamp: new Date(r.created_at * 1000).toISOString(), evaluation_mode: 'direct_rating' }));
         setRuns([...hostedRuns, ...normalized]);
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+        if (!cancelled && !initialRuns?.length) setError(e instanceof Error ? e.message : String(e));
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialRuns]);
 
   // Close any open dropdown on outside-click + Escape.
   useEffect(() => {
@@ -153,8 +159,8 @@ export function Experiments() {
     setColWidths((prev) => ({ ...prev, [key]: w }));
   }, []);
 
-  if (error) return <div className="error">Failed to load experiments: {error}</div>;
-  if (!runs) return <div className="loading"><Penguin state="loading" /><span>Loading experiments</span></div>;
+  if (error) return <div className="error">Failed to load saved runs: {error}</div>;
+  if (!runs) return <div className="loading"><Penguin state="loading" /><span>Loading saved runs</span></div>;
 
   const uniques = {
     group: uniqueValues(runs, 'group'),
@@ -183,7 +189,7 @@ export function Experiments() {
 
   return (
     <div>
-      <div className="filter-bar">
+      <div className="filter-bar" data-filters-open={filtersOpen}>
         <div className="filter-search-wrap">
           <svg
             className="filter-search-icon"
@@ -202,11 +208,13 @@ export function Experiments() {
             type="text"
             className="filter-search"
             placeholder="Search runs…"
+            aria-label="Search saved runs"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
+        {compact && <button type="button" className="saved-run-filter-toggle" aria-label="Filters" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(!filtersOpen)}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 7h16M4 17h16"/><rect x="7" y="4" width="4" height="6" rx="1" fill="var(--bg-elevated)"/><rect x="14" y="14" width="4" height="6" rx="1" fill="var(--bg-elevated)"/></svg></button>}
         {filterDefs
           .filter((f) => f.values.length > 1)
           .map((f) => {
@@ -311,7 +319,7 @@ export function Experiments() {
           <table className="runs-table">
             <thead>
               <tr>
-                {COLS.map((c) => (
+                {COLS.filter(c => !compact || !['note', 'git_commit'].includes(c.key)).map((c) => (
                   <ResizableTh
                     key={c.key}
                     col={c.key}
@@ -319,7 +327,7 @@ export function Experiments() {
                     cur={sortCol}
                     asc={sortAsc}
                     onSort={onSort}
-                    width={colWidths[c.key] ?? (c.key === 'name' ? 420 : undefined)}
+                    width={colWidths[c.key] ?? (c.key === 'name' ? compact ? 270 : 420 : undefined)}
                     setWidth={setColWidth}
                   />
                 ))}
@@ -345,16 +353,16 @@ export function Experiments() {
                       aria-expanded={open}
                     >
                       <td>
-                        <span
+                        <button type="button" className="saved-run-group-toggle" aria-expanded={open} aria-label={`${open ? 'Collapse' : 'Expand'} ${item.name}`} onClick={event => { event.stopPropagation(); toggleGroup(item.name); }}><span
                           className="group-toggle"
                           style={{ transform: open ? 'rotate(90deg)' : 'none' }}
                         >
                           ▶
                         </span>
                         <span className="group-name">{item.name}</span>
-                        <span className="group-count">{item.children.length} runs</span>
+                        <span className="group-count">{item.children.length} runs</span></button>
                       </td>
-                      <td className="note-cell" title={first.note || undefined}>{first.note}</td>
+                      {!compact && <td className="note-cell" title={first.note || undefined}>{first.note}</td>}
                       <td>
                         {uniqConst.length === 1 ? (
                           <ValueLabel id={uniqConst[0]} />
@@ -382,16 +390,14 @@ export function Experiments() {
                       <td className="date-cell">
                         <FmtDate ts={first.timestamp} />
                       </td>
-                      <td>
-                        <GitHash hash={first.git_commit as string | undefined} />
-                      </td>
+                      {!compact && <td><GitHash hash={first.git_commit as string | undefined} /></td>}
                     </tr>
                   );
                   if (!open) return [groupHeader];
-                  const childRows = item.children.map((r) => <RunRowEl key={r.slug} r={r} child />);
+                  const childRows = item.children.map((r) => <RunRowEl key={r.slug} r={r} child compact={compact} />);
                   return [groupHeader, ...childRows];
                 }
-                return [<RunRowEl key={item.run.slug} r={item.run} child={false} />];
+                return [<RunRowEl key={item.run.slug} r={item.run} child={false} compact={compact} />];
               })}
             </tbody>
           </table>
@@ -473,19 +479,19 @@ function ResizableTh({
   );
 }
 
-function RunRowEl({ r, child }: { r: RunRow; child: boolean }) {
+function RunRowEl({ r, child, compact }: { r: RunRow; child: boolean; compact: boolean }) {
   const displayName = child ? r.name?.split('/').pop() || r.slug : r.name || r.slug;
   return (
     <tr className={child ? 'child-row' : ''}>
       <td style={{ paddingLeft: child ? 32 : undefined }}>
-        <a className="run-name" href={r.hosted_id ? `/evaluation/?id=${encodeURIComponent(String(r.hosted_id))}` : `/run/?slug=${encodeURIComponent(r.slug)}`}>
+        <a className="run-name" title={r.note || undefined} href={r.hosted_id ? `/evaluation/?id=${encodeURIComponent(String(r.hosted_id))}` : `/run/?slug=${encodeURIComponent(r.slug)}`}>
           {displayName}
         </a>
       </td>
-      <td className="note-cell" title={r.note || undefined}>{r.note || ''}</td>
+      {!compact && <td className="note-cell" title={r.note || undefined}>{r.note || ''}</td>}
       <td>
         {r.constitution ? (
-          <a className="link-subtle" href={`/constitution/?id=${encodeURIComponent(r.constitution)}`}>
+          <a className="link-subtle" href={`https://valuearena.github.io/constitution/?id=${encodeURIComponent(r.constitution)}`} target="_blank" rel="noopener noreferrer">
             <ValueLabel id={r.constitution} />
           </a>
         ) : (
@@ -504,9 +510,7 @@ function RunRowEl({ r, child }: { r: RunRow; child: boolean }) {
       <td className="date-cell">
         <FmtDate ts={r.timestamp} />
       </td>
-      <td>
-        <GitHash hash={r.git_commit as string | undefined} />
-      </td>
+      {!compact && <td><GitHash hash={r.git_commit as string | undefined} /></td>}
     </tr>
   );
 }

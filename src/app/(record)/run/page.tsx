@@ -6,9 +6,10 @@ import { runSlug } from '@/lib/run-slug';
 
 import { useEffect, useMemo, useState } from 'react';
 import { GIT_REPO } from '@/lib/config';
-import { fetchIndex, fetchMeta, fetchSummary, hfImageURL } from '@/lib/hf';
+import { fetchMeta, fetchSummary, hfImageURL } from '@/lib/hf';
+import savedRuns from '@/lib/data/saved-runs-index.json';
 import { bootstrapUnit, collectionTypeLabel, inspectViewerURL, metaEvaluationMode } from '@/lib/protocol';
-import type { EvaluationMode, IndexJson, MetaJson, Summary } from '@/lib/types';
+import type { EvaluationMode, MetaJson, Summary } from '@/lib/types';
 import { EloBarChart } from '@/components/EloBarChart';
 import { ModelLogo } from '@/components/ModelLogo';
 import { TrustChart } from '@/components/TrustChart';
@@ -33,12 +34,11 @@ export default function RunPage() {
         return;
       }
       try {
-        const [meta, summary, index] = await Promise.all([
+        const [meta, summary] = await Promise.all([
           fetchMeta(slug),
           fetchSummary(slug),
-          fetchIndex().catch(() => null as IndexJson | null),
         ]);
-        const entry = index?.runs?.find((r) => r.slug === slug);
+        const entry = savedRuns.runs.find((r) => r.slug === slug);
         const group = slug.startsWith('account/') ? '' : entry?.group || slug.split('/')[0];
         if (!cancelled) setState({ status: 'ok', slug, meta, summary, group });
       } catch (e) {
@@ -64,7 +64,7 @@ export default function RunPage() {
     return (
       <div className="error">
         Failed to load run{state.slug ? ` "${state.slug}"` : ''}: {state.message} <br />
-        <a href="/evaluate/">Log in / Your evaluations</a>
+        <a href={state.slug?.startsWith('account/') ? '/evaluate/?tab=runs' : '/experiments/'}>{state.slug?.startsWith('account/') ? 'Your evaluations' : 'Back to saved runs'}</a>
       </div>
     );
 
@@ -75,7 +75,7 @@ export default function RunPage() {
   return (
     <>
       <div className="breadcrumb">
-        <a href={slug.startsWith('account/') ? '/evaluate/' : 'https://valuearena.github.io/'}>{slug.startsWith('account/') ? 'Your evaluations' : 'ValueArena'}</a> / {meta.name || slug}
+        <a href={slug.startsWith('account/') ? '/evaluate/?tab=runs' : '/experiments/'}>{slug.startsWith('account/') ? 'Your evaluations' : 'Saved runs'}</a> / {meta.name || slug}
       </div>
 
       <div className="specimen-hero">
